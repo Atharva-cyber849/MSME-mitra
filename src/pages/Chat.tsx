@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { LanguageSelector } from "@/components/chat/LanguageSelector";
-import { getIntentResponse } from "@/lib/chatbotResponses";
+
 import { Info, Sparkles, Zap, Shield, FileText } from "lucide-react";
 
 interface Message {
@@ -12,6 +12,8 @@ interface Message {
   isBot: boolean;
   intent?: string;
   confidence?: number;
+  userQuery?: string;  // Store user query for feedback
+  feedbackGiven?: boolean;  // Track if feedback already given
 }
 
 const FloatingParticle = ({ delay, size, left, duration }: { delay: number; size: number; left: string; duration: number }) => (
@@ -41,6 +43,7 @@ const Chat = () => {
   const [language, setLanguage] = useState("en");
   const [isTyping, setIsTyping] = useState(false);
   const [hoveredAction, setHoveredAction] = useState<string | null>(null);
+  const [backendError, setBackendError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -51,7 +54,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     const userMessage: Message = {
       id: Date.now().toString(),
       text,
@@ -60,22 +63,70 @@ const Chat = () => {
 
     setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
+    setBackendError(null);
 
-    // Simulate bot thinking delay
-    setTimeout(() => {
-      const { intent, confidence, response } = getIntentResponse(text);
+    try {
+      // Call the ML backend API
+      const { chatbotAPI } = await import("@/lib/api");
+      const response = await chatbotAPI.chat(text, language);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response,
+        text: response.response,
         isBot: true,
-        intent,
-        confidence,
+        intent: response.intent,
+        confidence: response.confidence,
+        userQuery: text,  // Store user query for feedback
+        feedbackGiven: false,
       };
 
       setIsTyping(false);
       setMessages((prev) => [...prev, botMessage]);
-    }, 1000 + Math.random() * 1000);
+    } catch (error) {
+      console.error("Error calling chatbot API:", error);
+      setBackendError("Unable to connect to backend. Please ensure the server is running.");
+      
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "Sorry, I'm having trouble connecting to my knowledge base right now. Please ensure the backend server is running and try again.",
+        isBot: true,
+        intent: "Unknown",
+        confidence: 0,
+      };
+
+      setIsTyping(false);
+      setMessages((prev) => [...prev, botMessage]);
+    }
+  };
+
+  const handleFeedback = async (messageId: string, rating: number) => {
+    try {
+      // Find the message
+      const message = messages.find(m => m.id === messageId);
+      if (!message || !message.isBot) return;
+
+      const { chatbotAPI } = await import("@/lib/api");
+      await chatbotAPI.submitFeedback({
+        message: message.userQuery || "",
+        response: message.text,
+        intent: message.intent || "Unknown",
+        confidence: message.confidence || 0,
+        rating,
+      });
+
+      // Mark feedback as given
+      setMessages(prev => 
+        prev.map(m => 
+          m.id === messageId 
+            ? { ...m, feedbackGiven: true }
+            : m
+        )
+      );
+
+      console.log(`Feedback submitted: ${rating > 0 ? 'Positive' : 'Negative'}`);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   const quickActions = [
@@ -127,12 +178,21 @@ const Chat = () => {
         <div className="px-4 py-2 bg-primary/5 border-b border-primary/10 shimmer-bg animate-shimmer relative z-10">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Info className="w-4 h-4 text-primary animate-bounce-gentle" />
-            <span>This is a demo chatbot. Responses are simulated for demonstration purposes.</span>
+            <span>AI-powered MSME support. Providing guidance on loans, GST, registration, and compliance.</span>
           </div>
         </div>
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/30 particles-bg relative z-10">
+          {backendError && (
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-xs text-destructive flex items-start gap-2 mb-4">
+              <span className="text-lg">⚠️</span>
+              <div>
+                <p className="font-medium">Backend Connection Error</p>
+                <p>{backendError}</p>
+              </div>
+            </div>
+          )}
           {messages.map((msg, index) => (
             <div
               key={msg.id}
@@ -140,10 +200,13 @@ const Chat = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <ChatMessage
+                messageId={msg.id}
                 message={msg.text}
                 isBot={msg.isBot}
                 intent={msg.intent}
                 confidence={msg.confidence}
+                feedbackGiven={msg.feedbackGiven}
+                onFeedback={handleFeedback}
               />
             </div>
           ))}

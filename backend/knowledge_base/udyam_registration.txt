@@ -1,0 +1,73 @@
+Udyam Registration for MSMEs
+
+Udyam Registration is the official registration process for Micro, Small, and Medium Enterprises (MSMEs) in India.
+
+Classification of MSMEs:
+
+1. Micro Enterprise:
+   - Investment: Up to ₹1 Crore
+   - Turnover: Up to ₹5 Crore
+
+2. Small Enterprise:
+   - Investment: Up to ₹10 Crore
+   - Turnover: Up to ₹50 Crore
+
+3. Medium Enterprise:
+   - Investment: Up to ₹50 Crore
+   - Turnover: Up to ₹250 Crore
+
+Note: Both investment and turnover criteria must be satisfied.
+
+Benefits of Udyam Registration:
+- Access to government schemes and subsidies
+- Priority sector lending from banks
+- Protection against delayed payments
+- Concession in electricity bills
+- Exemption from certain direct taxes
+- Preference in government procurement
+- Collateral-free loans under CGTMSE
+- Lower interest rates on loans
+- ISO certification reimbursement
+- Patent registration subsidy
+
+Registration Process:
+1. Visit: https://udyamregistration.gov.in
+2. Click on 'For New Entrepreneurs who are not Registered yet as MSME'
+3. Enter Aadhaar number
+4. Verify with OTP
+5. Fill business details:
+   - Name and type of enterprise
+   - PAN number (auto-filled from Aadhaar)
+   - Address
+   - Bank details
+   - Business activity
+   - Investment and turnover details
+6. Submit the form
+7. Receive Udyam Registration Certificate immediately
+
+Documents Required:
+- Aadhaar card (mandatory)
+- PAN card (linked to Aadhaar)
+- Business details (investment and turnover)
+
+Important Points:
+- Registration is completely FREE
+- No fee at any stage
+- Instant certificate generation
+- Valid across India
+- Can be updated anytime
+- Investment and turnover data auto-fetched from IT returns and GSTIN
+
+Updating Registration:
+- Login with Aadhaar
+- Update required information
+- Submit changes
+
+For Support:
+- Email: champions@gov.in
+- Helpline: 1800-180-6763
+
+Common Issues:
+- Aadhaar not linked to PAN: Link at IT portal first
+- Wrong mobile number: Update in Aadhaar
+- Technical issues: Clear browser cache or try different browser
