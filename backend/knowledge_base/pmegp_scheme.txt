@@ -1,0 +1,380 @@
+PMEGP - Prime Minister's Employment Generation Programme
+
+Complete Guide to PMEGP Scheme for New Entrepreneurs
+
+What is PMEGP?
+PMEGP (Prime Minister's Employment Generation Programme) is a credit-linked subsidy scheme launched by the Ministry of MSME. It aims to generate employment opportunities through establishment of micro enterprises in rural and urban areas.
+
+Nodal Agency: Khadi and Village Industries Commission (KVIC)
+
+Scheme Objectives:
+- Generate employment opportunities in rural and urban areas
+- Bring together widely dispersed traditional artisans and unemployed youth
+- Provide continuous and sustainable employment
+- Increase wage earning capacity of artisans
+- Contribute to rural industrialization
+
+Financial Assistance:
+
+Maximum Project Cost:
+- Manufacturing Sector: ₹50 lakhs
+- Service/Business Sector: ₹20 lakhs
+
+Subsidy Rates:
+1. General Category:
+   - Urban Areas: 15% of project cost
+   - Rural Areas: 25% of project cost
+
+2. Special Category (SC/ST/OBC/Minorities/Women/Ex-servicemen/Physically Handicapped/NER/Hill and Border areas):
+   - Urban Areas: 25% of project cost
+   - Rural Areas: 35% of project cost
+
+Beneficiary Contribution:
+- General Category: 10% of project cost
+- Special Category: 5% of project cost
+- Remaining amount: Bank loan
+
+Eligibility Criteria:
+
+Age: Above 18 years
+
+Educational Qualification:
+- Minimum 8th pass for projects above ₹10 lakhs in manufacturing
+- Minimum 8th pass for projects above ₹5 lakhs in service/business
+- Only for self-employment training: No minimum education
+
+Income Criteria:
+- Family income should not exceed ₹3 lakhs per annum for service sector
+- No income ceiling for manufacturing sector in certain cases
+
+Other Conditions:
+- Should not have defaulted on any bank loan
+- Assistance under PMEGP only once
+- Existing units not eligible (units registered under any other scheme)
+- Self-Help Groups (with BPL persons) are eligible
+- Institutions registered under Societies Registration Act
+- Production Co-operative Societies
+- Charitable Trusts
+
+Activities Covered:
+
+Manufacturing Sector:
+- Forest based (non-timber)
+- Mineral based industries
+- Handmade paper and fiber industries
+- Food processing industries
+- Agriculture based industries
+- Textile industries (including khadi)
+- Leather based industries
+- Chemical based industries
+- Engineering and non-conventional energy
+- Handicrafts
+
+Service/Business Sector:
+- Community services
+- Personal services
+- Commercial establishments
+- Business enterprises
+- ICT based services
+- Health services
+- Education and training
+- Transportation services
+- Professional services
+
+Activities NOT Covered:
+- Hotel, restaurant, or eating houses
+- Diesel/petrol filling stations
+- Flour mills
+- Ice cream parlors
+- Beauty parlors (in urban areas)
+- Coaching/tuition centers
+- Photography studios
+- Consultancy services
+- Printing press
+- DTP centers
+- STD/PCO booths
+
+Application Process:
+
+Step 1: Online Registration
+- Visit: www.kviconline.gov.in/pmegpeportal
+- Click on "Application Form for Individual"
+- Register with details (name, email, mobile)
+- Receive login credentials
+
+Step 2: Fill Application Form
+- Login to portal
+- Select "Fill your Application Form"
+- Provide complete details:
+  * Personal information
+  * Educational qualification
+  * Training details (if any)
+  * Project details
+  * Bank details
+  * Financial information
+  * Employment generation plan
+
+Step 3: Document Upload
+Required Documents:
+- Photograph (passport size)
+- Signature
+- Educational certificates
+- Caste certificate (if applicable)
+- Residence proof (Aadhaar/Voter ID/Ration Card)
+- Bank account details
+- Project report
+- Land/shed documents (if applicable)
+- Quotations for machinery/equipment
+
+Step 4: Submission
+- Review all details
+- Submit application
+- Note Application ID for tracking
+
+Step 5: Scrutiny and Interview
+- Application forwarded to District KVIC/DIC office
+- Scrutiny of documents
+- Personal interview/interaction
+- Field visit if required
+- Technical evaluation
+
+Step 6: Bank Financing
+- Eligible applications forwarded to banks
+- Bank appraisal
+- Loan sanction
+- Disbursement of loan and subsidy
+
+Loan Disbursement:
+
+Phase 1 (Before Production):
+- 90% of working capital
+- 75% of machinery cost
+- Subsidy amount
+
+Phase 2 (After Starting Production):
+- Remaining 10% working capital
+- Remaining 25% machinery cost
+
+Subsidy Release:
+- Released in two installments
+- First: 50% after investment of beneficiary contribution
+- Second: 50% after loan utilization
+
+Margin Money Subsidy:
+Directly credited to:
+1. Beneficiary's bank account (for working capital)
+2. Supplier's account (for fixed assets)
+
+Repayment Terms:
+
+Manufacturing Units:
+- Moratorium: 6-12 months
+- Repayment Period: 3-7 years
+
+Service/Business Units:
+- Moratorium: 3-6 months
+- Repayment Period: 3-5 years
+
+Interest Rates:
+- As per bank's MSME lending rates
+- Usually 8-12% per annum
+- Special rates for women/SC/ST entrepreneurs
+
+Employment Generation:
+Each project should generate:
+- At least 1-2 jobs in service sector
+- At least 2-3 jobs in manufacturing sector
+
+Training Support:
+
+EDP Training:
+- Duration: 2 weeks
+- Free of cost
+- Covers:
+  * Business planning
+  * Financial management
+  * Marketing strategies
+  * Legal compliance
+  * Operational aspects
+
+Training Institutes:
+- KVIC training centers
+- District Industries Centers
+- Approved training institutes
+
+After Training:
+- Issue of training certificate
+- Priority in project selection
+- Guidance in project preparation
+
+Special Features:
+
+For Women Entrepreneurs:
+- Higher subsidy rates
+- Priority in selection
+- Special women entrepreneurship programs
+- Handholding support
+
+For Rural Areas:
+- Higher subsidy (10% more)
+- Focus on traditional skills
+- Village industries promotion
+
+For SC/ST/OBC:
+- Reservation as per government norms
+- Special outreach programs
+- Additional support services
+
+Credit Guarantee:
+- CGTMSE cover available
+- No collateral required up to ₹10 lakhs
+- Risk sharing with banks
+
+Success Stories:
+
+Manufacturing:
+- Papad making unit: ₹5 lakhs project, 4 jobs created
+- Candle manufacturing: ₹3 lakhs project, 3 jobs created
+- Agarbatti production: ₹8 lakhs project, 6 jobs created
+
+Service:
+- Mobile repair center: ₹2 lakhs project, 2 jobs created
+- Beauty salon: ₹4 lakhs project, 3 jobs created
+- Computer training center: ₹6 lakhs project, 5 jobs created
+
+Common Reasons for Rejection:
+- Incomplete application
+- Invalid documents
+- Over age limit
+- Under-qualified
+- Existing loan defaults
+- Non-eligible activity
+- Insufficient market potential
+- Poor project viability
+
+Tips for Successful Application:
+
+1. Project Selection:
+   - Choose viable business idea
+   - Assess local demand
+   - Check competition
+   - Ensure availability of raw materials
+
+2. Project Report:
+   - Detailed and realistic
+   - Include market survey
+   - Show employment generation
+   - Proper cost estimates
+
+3. Documentation:
+   - Complete and authentic
+   - Properly attested
+   - Recent documents (not older than 6 months)
+
+4. Training:
+   - Complete EDP training before applying
+   - Improves selection chances
+   - Better preparation
+
+5. Bank Selection:
+   - Choose bank familiar with PMEGP
+   - Good track record in MSME lending
+   - Local branch preferred
+
+Contact Information:
+
+National Level:
+KVIC Head Office
+3, Irla Road, Vile Parle (West)
+Mumbai - 400056
+Email: kvic@kvic.org.in
+Phone: 022-26711082
+
+Helpline: 1800-180-6888
+
+State Level:
+Contact State KVIC Director
+(List on website: kviconline.gov.in)
+
+District Level:
+District Industries Center (DIC)
+KVIC District Office
+
+Online:
+Website: www.kviconline.gov.in/pmegpeportal
+Portal Support: pmegp-kvic@gov.in
+
+Tracking Application:
+- Visit KVIC portal
+- Click "Track Your Application"
+- Enter Application ID
+- View current status
+
+Important Dates:
+- Application: Throughout the year
+- Processing Time: 60-90 days
+- No deadline for applications
+
+Latest Updates (2026):
+- Digital KYC introduced
+- Faster processing (45 days target)
+- Mobile app launched: PMEGP Mobile
+- Video conferencing for interviews
+- Integration with Udyam portal
+- Paperless disbursement system
+
+FAQs:
+
+Q: Can I apply for PMEGP if I have GST registration?
+A: Yes, GST registration is not a barrier. New ventures can apply.
+
+Q: Is PMEGP subsidy taxable?
+A: No, subsidy received under PMEGP is not taxable income.
+
+Q: Can I relocate my unit after setup?
+A: Not recommended. Prior permission from KVIC required.
+
+Q: Can I change my project after approval?
+A: Major changes not allowed. Minor modifications with KVIC approval.
+
+Q: What if my loan application is rejected by bank?
+A: You can approach another bank through KVIC office.
+
+Q: Can I get PMEGP for second venture?
+A: No, PMEGP assistance is provided only once per person.
+
+Q: Is collateral required?
+A: No collateral for projects up to ₹10 lakhs under CGTMSE.
+
+Q: Can family members apply separately?
+A: Yes, but for different activities/locations.
+
+Success Rate:
+- Overall approval rate: 60-70%
+- Manufacturing sector: Higher approval
+- Service sector: Moderate approval
+- Business sector: Case by case basis
+
+Monitoring and Evaluation:
+- Quarterly progress reports
+- Physical verification
+- Performance assessment
+- Impact evaluation
+
+Post-Sanction Support:
+- Marketing linkages
+- Technology upgradation
+- Quality certification
+- Export promotion
+- Cluster development
+
+Key Points to Remember:
+✓ Only one subsidy per person/family
+✓ Project should be new establishment
+✓ Minimum beneficiary contribution mandatory
+✓ Complete all formalities before starting unit
+✓ Maintain proper accounts and records
+✓ Regular loan repayment essential
+✓ Generate promised employment
+
+This scheme has successfully created lakhs of jobs across India and continues to be a major employment generation program for the country.

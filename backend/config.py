@@ -17,14 +17,21 @@ class Settings(BaseSettings):
     INTENT_MODEL_NAME: str = "valhalla/distilbart-mnli-12-1"
     EMBEDDING_MODEL_NAME: str = "sentence-transformers/all-MiniLM-L6-v2"
     
+    # Groq API Settings
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL_NAME: str = "llama-3.3-70b-versatile"
+    USE_GROQ: bool = False  # Set to True to enable Groq-powered responses
+    GROQ_MAX_TOKENS: int = 2048
+    GROQ_TEMPERATURE: float = 0.7
+    
     # Confidence Thresholds
     INTENT_CONFIDENCE_THRESHOLD: float = 0.50
-    RETRIEVAL_CONFIDENCE_THRESHOLD: float = 0.3
+    RETRIEVAL_CONFIDENCE_THRESHOLD: float = 0.25
     
     # RAG Settings
-    CHUNK_SIZE: int = 2000
-    CHUNK_OVERLAP: int = 200
-    TOP_K_RETRIEVAL: int = 5
+    CHUNK_SIZE: int = 1500
+    CHUNK_OVERLAP: int = 300
+    TOP_K_RETRIEVAL: int = 8
     
     # Vector Database Settings
     CHROMA_PERSIST_DIRECTORY: str = "./chroma_db"
@@ -63,6 +70,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra environment variables
 
 
 settings = Settings()

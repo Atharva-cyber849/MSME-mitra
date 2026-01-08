@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
-import { LanguageSelector } from "@/components/chat/LanguageSelector";
+import { ChatSidebar } from "@/components/chat/ChatSidebar";
+import { BusinessProfileModal } from "@/components/chat/BusinessProfileModal";
+import { QuickActionsPanel } from "@/components/chat/QuickActionsPanel";
 
-import { Info, Sparkles, Zap, Shield, FileText } from "lucide-react";
+import { Sparkles, Zap, Shield, FileText, ExternalLink } from "lucide-react";
 
 interface Message {
   id: string;
@@ -14,6 +16,12 @@ interface Message {
   confidence?: number;
   userQuery?: string;  // Store user query for feedback
   feedbackGiven?: boolean;  // Track if feedback already given
+  suggested_questions?: string[];
+  rich_content?: {
+    links?: Array<{ text: string; url: string }>;
+    actions?: Array<{ type: string; text: string; icon: string }>;
+    info_cards?: Array<{ type: string; title: string; content: string; icon: string }>;
+  };
 }
 
 const FloatingParticle = ({ delay, size, left, duration }: { delay: number; size: number; left: string; duration: number }) => (
@@ -44,7 +52,15 @@ const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [hoveredAction, setHoveredAction] = useState<string | null>(null);
   const [backendError, setBackendError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showBusinessProfile, setShowBusinessProfile] = useState(false);
+  const [hasBusinessProfile, setHasBusinessProfile] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,6 +69,71 @@ const Chat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      // Set language based on selected language
+      recognitionRef.current.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+      
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        handleSendMessage(transcript);
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current.onerror = () => {
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+    }
+  }, [language]);
+
+  const toggleVoiceRecording = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition is not supported in your browser');
+      return;
+    }
+    
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  };
+
+  const speakResponse = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
 
   const handleSendMessage = async (text: string) => {
     const userMessage: Message = {
@@ -68,7 +149,17 @@ const Chat = () => {
     try {
       // Call the ML backend API
       const { chatbotAPI } = await import("@/lib/api");
-      const response = await chatbotAPI.chat(text, language);
+      const response = await chatbotAPI.chat(text, language, sessionId || undefined);
+
+      // Store session ID and check for business profile
+      if (!sessionId) {
+        setSessionId(response.session_id);
+        
+        // Show business profile modal after first message if not set
+        if (!hasBusinessProfile && messages.length === 1) {
+          setTimeout(() => setShowBusinessProfile(true), 2000);
+        }
+      }
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -78,6 +169,8 @@ const Chat = () => {
         confidence: response.confidence,
         userQuery: text,  // Store user query for feedback
         feedbackGiven: false,
+        suggested_questions: response.suggested_questions,
+        rich_content: response.rich_content,
       };
 
       setIsTyping(false);
@@ -112,6 +205,7 @@ const Chat = () => {
         intent: message.intent || "Unknown",
         confidence: message.confidence || 0,
         rating,
+        session_id: sessionId || undefined,
       });
 
       // Mark feedback as given
@@ -129,6 +223,96 @@ const Chat = () => {
     }
   };
 
+  const handleBusinessProfileSave = async (profile: any) => {
+    if (!sessionId) return;
+    
+    try {
+      const { chatbotAPI } = await import("@/lib/api");
+      await chatbotAPI.setBusinessProfile(sessionId, profile);
+      setHasBusinessProfile(true);
+      
+      // Add a system message about personalization
+      const systemMessage: Message = {
+        id: Date.now().toString(),
+        text: "Great! I've saved your business profile. I'll now provide personalized recommendations based on your business type and stage. 🎯",
+        isBot: true,
+        intent: "System",
+        confidence: 1.0,
+      };
+      setMessages((prev) => [...prev, systemMessage]);
+    } catch (error) {
+      console.error("Error saving business profile:", error);
+    }
+  };
+
+  // Save conversation to localStorage
+  const saveConversation = () => {
+    if (!sessionId || messages.length <= 1) return; // Don't save empty conversations
+    
+    const conversations = JSON.parse(localStorage.getItem("conversations") || "[]");
+    const existingIndex = conversations.findIndex((c: any) => c.id === sessionId);
+    
+    // Get first user message for title
+    const firstUserMessage = messages.find(m => !m.isBot);
+    const title = firstUserMessage 
+      ? firstUserMessage.text.substring(0, 50) + (firstUserMessage.text.length > 50 ? "..." : "")
+      : "New Conversation";
+    
+    const lastMessage = messages[messages.length - 1];
+    
+    const conversation = {
+      id: sessionId,
+      title,
+      lastMessage: lastMessage.text.substring(0, 60) + "...",
+      timestamp: Date.now(),
+      messages: messages,
+      language,
+    };
+    
+    if (existingIndex >= 0) {
+      conversations[existingIndex] = conversation;
+    } else {
+      conversations.unshift(conversation);
+    }
+    
+    localStorage.setItem("conversations", JSON.stringify(conversations));
+    window.dispatchEvent(new Event("conversationUpdated"));
+  };
+
+  // Save conversation when messages change
+  useEffect(() => {
+    if (messages.length > 1) {
+      saveConversation();
+    }
+  }, [messages]);
+
+  // Start new chat
+  const handleNewChat = () => {
+    setMessages([
+      {
+        id: "welcome",
+        text: "Namaste! 🙏 Welcome to the MSME Business Support Chatbot.\n\nI can help you with:\n• Government schemes & subsidies\n• Loan information\n• GST & compliance\n• Udyam registration\n• Licensing & permits\n\nHow can I assist you today?",
+        isBot: true,
+        intent: "Greeting",
+        confidence: 0.98,
+      },
+    ]);
+    setSessionId(null);
+    setBackendError(null);
+  };
+
+  // Load conversation from history
+  const handleSelectConversation = (convId: string) => {
+    const conversations = JSON.parse(localStorage.getItem("conversations") || "[]");
+    const conversation = conversations.find((c: any) => c.id === convId);
+    
+    if (conversation) {
+      setMessages(conversation.messages);
+      setSessionId(conversation.id);
+      setLanguage(conversation.language || "en");
+    }
+  };
+
   const quickActions = [
     { label: "Government Schemes", icon: Sparkles, color: "from-primary to-primary/70" },
     { label: "MUDRA Loan", icon: Zap, color: "from-accent to-accent/70" },
@@ -137,68 +321,34 @@ const Chat = () => {
   ];
 
   return (
-    <Layout hideFooter>
-      <div className="flex flex-col h-[calc(100vh-64px)] relative overflow-hidden">
-        {/* Animated Background Particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <FloatingParticle delay={0} size={8} left="10%" duration={8} />
-          <FloatingParticle delay={1} size={6} left="25%" duration={10} />
-          <FloatingParticle delay={2} size={10} left="45%" duration={7} />
-          <FloatingParticle delay={0.5} size={5} left="65%" duration={9} />
-          <FloatingParticle delay={1.5} size={7} left="80%" duration={11} />
-          <FloatingParticle delay={3} size={4} left="90%" duration={8} />
-        </div>
-
-        {/* Chat Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/80 backdrop-blur-sm relative z-10">
-          <div className="flex items-center gap-3 group">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center animate-glow group-hover:animate-wiggle transition-all duration-300">
-                <span className="text-lg">🤖</span>
-              </div>
-              {/* Pulse ring effect */}
-              <div className="absolute inset-0 rounded-full bg-primary/30 animate-pulse-ring" />
-            </div>
-            <div>
-              <h1 className="font-heading font-semibold text-foreground group-hover:gradient-text transition-all duration-300">
-                MSME Support Bot
-              </h1>
-              <p className="text-xs text-success flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                <span className="animate-fade-in">Online</span>
-              </p>
-            </div>
-          </div>
-          <div className="hover-lift">
-            <LanguageSelector value={language} onChange={setLanguage} />
-          </div>
-        </div>
-
-        {/* Info Banner */}
-        <div className="px-4 py-2 bg-primary/5 border-b border-primary/10 shimmer-bg animate-shimmer relative z-10">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Info className="w-4 h-4 text-primary animate-bounce-gentle" />
-            <span>AI-powered MSME support. Providing guidance on loans, GST, registration, and compliance.</span>
-          </div>
-        </div>
-
+    <Layout hideFooter hideNavbar>
+      <ChatSidebar
+        currentSessionId={sessionId || ""}
+        onNewChat={handleNewChat}
+        onSelectConversation={handleSelectConversation}
+        onShowBusinessProfile={() => setShowBusinessProfile(true)}
+        hasBusinessProfile={hasBusinessProfile}
+        language={language}
+        onLanguageChange={setLanguage}
+        onSidebarToggle={setIsSidebarOpen}
+      />
+      
+      <div className={`flex flex-col h-screen relative bg-background transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-16'}`}>
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/30 particles-bg relative z-10">
+        <div className="flex-1 overflow-y-auto">
           {backendError && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-xs text-destructive flex items-start gap-2 mb-4">
-              <span className="text-lg">⚠️</span>
-              <div>
-                <p className="font-medium">Backend Connection Error</p>
-                <p>{backendError}</p>
+            <div className="max-w-3xl mx-auto px-4 py-6">
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 text-sm text-destructive flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-semibold mb-1">Connection Error</p>
+                  <p className="text-xs">{backendError}</p>
+                </div>
               </div>
             </div>
           )}
           {messages.map((msg, index) => (
-            <div
-              key={msg.id}
-              className="animate-scale-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
+            <div key={msg.id}>
               <ChatMessage
                 messageId={msg.id}
                 message={msg.text}
@@ -208,52 +358,98 @@ const Chat = () => {
                 feedbackGiven={msg.feedbackGiven}
                 onFeedback={handleFeedback}
               />
+              
+              {/* Rich Content */}
+              {msg.isBot && msg.rich_content && index === messages.length - 1 && (
+                <div className="max-w-3xl mx-auto px-4 pb-4 space-y-2">
+                  {/* Links */}
+                  {msg.rich_content.links && msg.rich_content.links.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {msg.rich_content.links.map((link, i) => (
+                        <a
+                          key={i}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          {link.text}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Info Cards */}
+                  {msg.rich_content.info_cards && msg.rich_content.info_cards.length > 0 && (
+                    <div className="space-y-2">
+                      {msg.rich_content.info_cards.map((card, i) => (
+                        <div key={i} className="bg-card border border-border rounded-lg p-3 text-xs">
+                          <p className="font-semibold text-foreground mb-1">{card.title}</p>
+                          <p className="text-muted-foreground whitespace-pre-line">{card.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Suggested Questions */}
+              {msg.isBot && msg.suggested_questions && msg.suggested_questions.length > 0 && index === messages.length - 1 && (
+                <div className="max-w-3xl mx-auto px-4 pb-4">
+                  <div className="pl-14 space-y-2">
+                    <p className="text-xs text-muted-foreground">Suggested follow-ups</p>
+                    <div className="flex flex-wrap gap-2">
+                      {msg.suggested_questions.map((question, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSendMessage(question)}
+                          className="text-sm px-3 py-1.5 bg-muted hover:bg-muted/80 rounded-lg transition-colors border border-border"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
-          {isTyping && (
-            <div className="animate-scale-in">
-              <ChatMessage message="" isBot isTyping />
-            </div>
-          )}
+          {isTyping && <ChatMessage message="" isBot isTyping />}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Actions */}
-        <div className="px-4 py-3 border-t border-border bg-card/80 backdrop-blur-sm overflow-x-auto relative z-10">
-          <div className="flex gap-3">
-            {quickActions.map((action) => {
-              const Icon = action.icon;
-              return (
-                <button
-                  key={action.label}
-                  onClick={() => handleSendMessage(`Tell me about ${action.label}`)}
-                  onMouseEnter={() => setHoveredAction(action.label)}
-                  onMouseLeave={() => setHoveredAction(null)}
-                  className={`
-                    relative px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap
-                    flex items-center gap-2 interactive-scale
-                    bg-gradient-to-r ${action.color} text-white
-                    shadow-soft hover:shadow-elevated
-                    transition-all duration-300
-                    ${hoveredAction === action.label ? 'ring-2 ring-primary/30 ring-offset-2' : ''}
-                  `}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${hoveredAction === action.label ? 'animate-bounce-gentle' : ''}`} />
-                  {action.label}
-                  {hoveredAction === action.label && (
-                    <span className="absolute inset-0 rounded-full bg-white/20 animate-pulse-ring" />
-                  )}
-                </button>
-              );
-            })}
+        {/* Quick Actions Panel */}
+        {showSuggestions && (
+          <div className="border-t border-border bg-background/95 backdrop-blur-sm">
+            <QuickActionsPanel 
+              onActionClick={handleSendMessage}
+              hoveredAction={hoveredAction}
+              setHoveredAction={setHoveredAction}
+            />
           </div>
-        </div>
+        )}
 
         {/* Input Area */}
-        <div className="relative z-10">
-          <ChatInput onSend={handleSendMessage} disabled={isTyping} />
+        <div className="border-t border-border bg-background/95 backdrop-blur-sm">
+          <ChatInput 
+            onSend={handleSendMessage} 
+            disabled={isTyping}
+            showSuggestions={showSuggestions}
+            setShowSuggestions={setShowSuggestions}
+            isRecording={isRecording}
+            onToggleRecording={toggleVoiceRecording}
+            hasVoiceSupport={!!recognitionRef.current}
+          />
         </div>
       </div>
+
+      {/* Business Profile Modal */}
+      <BusinessProfileModal
+        open={showBusinessProfile}
+        onClose={() => setShowBusinessProfile(false)}
+        onSave={handleBusinessProfileSave}
+      />
     </Layout>
   );
 };

@@ -1,4 +1,4 @@
-import { Bot, User, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Bot, User, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -27,108 +27,78 @@ export const ChatMessage = ({
   const [hoveredFeedback, setHoveredFeedback] = useState<string | null>(null);
 
   return (
-    <div className={`flex gap-3 ${isBot ? "justify-start" : "justify-end"} animate-slide-up group`}>
-      {isBot && (
-        <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center flex-shrink-0 shadow-soft group-hover:shadow-elevated transition-all duration-300 group-hover:scale-110">
-          <Bot className="w-4 h-4 text-primary-foreground" />
-        </div>
-      )}
-      
-      <div className={`max-w-[80%] md:max-w-[70%]`}>
-        <div 
-          className={`
-            px-4 py-3 
-            ${isBot ? "chat-bubble-bot hover:shadow-elevated" : "chat-bubble-user hover:shadow-soft"} 
-            transition-all duration-300 
-            hover:-translate-y-0.5
-          `}
-        >
-          {isTyping ? (
-            <div className="flex gap-1.5 py-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-primary/60 typing-dot" />
-              <span className="w-2.5 h-2.5 rounded-full bg-primary/60 typing-dot" />
-              <span className="w-2.5 h-2.5 rounded-full bg-primary/60 typing-dot" />
+    <div className={`w-full py-8 px-4 ${isBot ? 'bg-muted/30' : 'bg-background'} border-b border-border/50`}>
+      <div className="max-w-3xl mx-auto">
+        <div className="flex gap-6 items-start group">
+          {/* Avatar */}
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+            isBot 
+              ? 'bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-lg' 
+              : 'bg-gradient-to-br from-accent to-accent/70 text-accent-foreground shadow-md'
+          }`}>
+            {isBot ? <Sparkles className="w-4 h-4" /> : <User className="w-4 h-4" />}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 space-y-3 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm">
+                {isBot ? 'MSME Assistant' : 'You'}
+              </span>
+              {isBot && intent && !isTyping && (
+                <Badge variant="secondary" className="text-xs">
+                  {intent.split(' ').slice(0, 2).join(' ')}
+                </Badge>
+              )}
             </div>
-          ) : (
-            <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-ul:my-2 prose-li:my-0.5">
-              <ReactMarkdown>{message}</ReactMarkdown>
-            </div>
-          )}
-        </div>
-        
-        {isBot && intent && !isTyping && (
-          <div className="flex items-center gap-2 mt-2 animate-fade-in">
-            <Badge 
-              variant="secondary" 
-              className="text-xs interactive-scale cursor-default hover:bg-primary/10 hover:text-primary transition-colors duration-200"
-            >
-              {intent}
-            </Badge>
-            {confidence !== undefined && (
-              <div className="flex items-center gap-1">
-                <div className="h-1.5 w-12 bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary to-success rounded-full transition-all duration-500"
-                    style={{ width: `${confidence * 100}%` }}
-                  />
+
+            <div className="text-[15px] leading-7">
+              {isTyping ? (
+                <div className="flex gap-2 items-center py-2">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="text-sm text-muted-foreground ml-2">Thinking...</span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {(confidence * 100).toFixed(0)}%
-                </span>
+              ) : (
+                <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-3 prose-ul:my-2 prose-li:my-1 prose-headings:font-semibold">
+                  <ReactMarkdown>{message}</ReactMarkdown>
+                </div>
+              )}
+            </div>
+
+            {/* Feedback Buttons */}
+            {isBot && !isTyping && messageId && onFeedback && intent !== "Greeting" && confidence && confidence > 0 && (
+              <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border/50">
+                {feedbackGiven ? (
+                  <span className="text-xs text-muted-foreground">✓ Thanks for your feedback</span>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => onFeedback(messageId, 1)}
+                      onMouseEnter={() => setHoveredFeedback('up')}
+                      onMouseLeave={() => setHoveredFeedback(null)}
+                      className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                      title="Good response"
+                    >
+                      <ThumbsUp className="w-4 h-4 text-muted-foreground hover:text-success transition-colors" />
+                    </button>
+                    <button
+                      onClick={() => onFeedback(messageId, -1)}
+                      onMouseEnter={() => setHoveredFeedback('down')}
+                      onMouseLeave={() => setHoveredFeedback(null)}
+                      className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                      title="Bad response"
+                    >
+                      <ThumbsDown className="w-4 h-4 text-muted-foreground hover:text-destructive transition-colors" />
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
-        )}
-
-        {/* Feedback Buttons */}
-        {isBot && !isTyping && messageId && onFeedback && intent !== "Greeting" && (
-          <div className="flex items-center gap-2 mt-2 animate-fade-in">
-            {feedbackGiven ? (
-              <span className="text-xs text-muted-foreground italic">Thank you for your feedback!</span>
-            ) : (
-              <>
-                <span className="text-xs text-muted-foreground">Was this helpful?</span>
-                <button
-                  onClick={() => onFeedback(messageId, 1)}
-                  onMouseEnter={() => setHoveredFeedback('up')}
-                  onMouseLeave={() => setHoveredFeedback(null)}
-                  className={`
-                    p-1 rounded-full transition-all duration-200
-                    ${hoveredFeedback === 'up' 
-                      ? 'bg-success/20 text-success scale-110' 
-                      : 'hover:bg-success/10 text-muted-foreground hover:text-success'
-                    }
-                  `}
-                  title="Helpful"
-                >
-                  <ThumbsUp className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => onFeedback(messageId, -1)}
-                  onMouseEnter={() => setHoveredFeedback('down')}
-                  onMouseLeave={() => setHoveredFeedback(null)}
-                  className={`
-                    p-1 rounded-full transition-all duration-200
-                    ${hoveredFeedback === 'down' 
-                      ? 'bg-destructive/20 text-destructive scale-110' 
-                      : 'hover:bg-destructive/10 text-muted-foreground hover:text-destructive'
-                    }
-                  `}
-                  title="Not helpful"
-                >
-                  <ThumbsDown className="w-3.5 h-3.5" />
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {!isBot && (
-        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 shadow-soft group-hover:shadow-elevated transition-all duration-300 group-hover:scale-110">
-          <User className="w-4 h-4 text-secondary-foreground" />
         </div>
-      )}
+      </div>
     </div>
   );
 };

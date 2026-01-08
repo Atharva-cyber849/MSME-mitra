@@ -46,14 +46,18 @@ const Contact = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="py-16 md:py-24 gradient-hero">
+      <section className="py-20 md:py-28 gradient-hero">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Contact & Help
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="font-heading text-5xl md:text-6xl font-bold text-foreground mb-8 leading-tight">
+              संपर्क और सहायता
+              <br />
+              <span className="text-4xl md:text-5xl">Contact & Help</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Need assistance? Reach out through our helplines or connect with human support.
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+              सहायता चाहिए? हमारी हेल्पलाइन पर संपर्क करें या मानव सहायता से जुड़ें
+              <br />
+              <span className="text-lg md:text-xl mt-2 block">Need assistance? Reach out through our helplines or connect with human support</span>
             </p>
           </div>
         </div>
@@ -64,34 +68,34 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Helplines */}
             <div>
-              <h2 className="font-heading text-2xl font-bold text-foreground mb-6">
-                Official Helplines
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-8">
+                आधिकारिक हेल्पलाइन | Official Helplines
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {helplines.map((helpline, index) => (
                   <div
                     key={helpline.title}
-                    className="p-6 rounded-2xl bg-card shadow-card border border-border animate-slide-up"
+                    className="p-8 rounded-3xl bg-card shadow-card border-2 border-border hover:border-primary/30 transition-all hover:shadow-lg animate-slide-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col gap-4">
                       <div>
-                        <h3 className="font-semibold text-foreground mb-1">
+                        <h3 className="font-bold text-xl md:text-2xl text-foreground mb-2">
                           {helpline.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
+                        <p className="text-base md:text-lg text-muted-foreground mb-4 leading-relaxed">
                           {helpline.description}
                         </p>
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                           <a
                             href={`tel:${helpline.number}`}
-                            className="flex items-center gap-2 text-primary font-medium"
+                            className="flex items-center gap-3 text-primary font-bold text-xl md:text-2xl hover:text-primary/80 transition-colors"
                           >
-                            <Phone className="w-4 h-4" />
+                            <Phone className="w-6 h-6" />
                             {helpline.number}
                           </a>
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="w-3 h-3" />
+                          <span className="flex items-center gap-2 text-base text-muted-foreground bg-muted px-4 py-2 rounded-full">
+                            <Clock className="w-4 h-4" />
                             {helpline.available}
                           </span>
                         </div>
@@ -149,60 +153,64 @@ const Contact = () => {
 
             {/* Contact Form */}
             <div>
-              <h2 className="font-heading text-2xl font-bold text-foreground mb-6">
-                Send us a Message
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-8">
+                संदेश भेजें | Send us a Message
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Your Name
+                    <label className="text-base md:text-lg font-semibold text-foreground mb-3 block">
+                      आपका नाम | Your Name
                     </label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Enter your name"
+                      placeholder="अपना नाम लिखें | Enter your name"
                       required
+                      className="text-base md:text-lg py-6 px-4"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Email Address
+                    <label className="text-base md:text-lg font-semibold text-foreground mb-3 block">
+                      ईमेल पता | Email Address
                     </label>
                     <Input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="Enter your email"
+                      placeholder="अपना ईमेल लिखें | Enter your email"
                       required
+                      className="text-base md:text-lg py-6 px-4"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Subject
+                  <label className="text-base md:text-lg font-semibold text-foreground mb-3 block">
+                    विषय | Subject
                   </label>
                   <Input
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    placeholder="What's this about?"
+                    placeholder="यह किस बारे में है? | What's this about?"
                     required
+                    className="text-base md:text-lg py-6 px-4"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Message
+                  <label className="text-base md:text-lg font-semibold text-foreground mb-3 block">
+                    संदेश | Message
                   </label>
                   <Textarea
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Describe your query in detail..."
-                    rows={5}
+                    placeholder="अपनी समस्या विस्तार से बताएं... | Describe your query in detail..."
+                    rows={6}
                     required
+                    className="text-base md:text-lg py-4 px-4"
                   />
                 </div>
-                <Button type="submit" className="w-full gradient-primary shadow-soft">
-                  Send Message
+                <Button type="submit" className="w-full gradient-primary shadow-soft text-lg py-7 hover:scale-105 transition-transform">
+                  संदेश भेजें | Send Message
                 </Button>
               </form>
 

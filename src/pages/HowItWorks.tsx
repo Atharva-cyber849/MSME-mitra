@@ -56,65 +56,68 @@ const mlSteps = [
 ];
 
 const technologies = [
-  { name: "BERT / DistilBERT", desc: "Intent Classification" },
+  { name: "DistilBERT", desc: "Intent Classification" },
   { name: "Sentence Transformers", desc: "Text Embeddings" },
-  { name: "Pinecone / FAISS", desc: "Vector Database" },
-  { name: "LangChain", desc: "RAG Pipeline" },
-  { name: "OpenAI / Gemini", desc: "Response Generation" },
+  { name: "ChromaDB", desc: "Vector Database" },
+  { name: "Google Gemini", desc: "Response Generation" },
   { name: "FastAPI", desc: "Backend API" },
+  { name: "React + Vite", desc: "Frontend Framework" },
 ];
 
 const HowItWorks = () => {
   return (
     <Layout>
-      <section className="py-16 md:py-24 gradient-hero">
+      <section className="py-20 md:py-28 gradient-hero">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-6">
-              How It Works
+          <div className="max-w-4xl mx-auto text-center mb-20">
+            <h1 className="font-heading text-5xl md:text-6xl font-bold text-foreground mb-8 leading-tight">
+              यह कैसे काम करता है
+              <br />
+              <span className="text-4xl md:text-5xl">How It Works</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Our AI-powered chatbot uses advanced machine learning to understand your queries 
-              and provide accurate information about MSME schemes and compliance.
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+              हमारा AI-आधारित चैटबॉट आपके सवालों को समझने और एमएसएमई योजनाओं और अनुपालन के बारे में सटीक जानकारी देने के लिए उन्नत मशीन लर्निंग का उपयोग करता है
+              <br />
+              <span className="text-lg md:text-xl mt-3 block">Our AI-powered chatbot uses advanced machine learning to understand your queries and provide accurate information</span>
             </p>
           </div>
 
           {/* ML Pipeline */}
-          <div className="max-w-4xl mx-auto">
-            <h2 className="font-heading text-2xl font-bold text-foreground mb-8 text-center">
-              ML Pipeline Flow
+          <div className="max-w-5xl mx-auto">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
+              प्रक्रिया का प्रवाह | ML Pipeline Flow
             </h2>
             
             <div className="relative">
               {/* Connection Line */}
-              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border hidden md:block" />
+              <div className="absolute left-10 top-0 bottom-0 w-1 bg-primary/20 hidden md:block rounded-full" />
               
               <div className="space-y-6">
                 {mlSteps.map((step, index) => (
                   <div
                     key={step.title}
-                    className="flex gap-6 animate-slide-up"
+                    className="flex gap-8 animate-slide-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     {/* Icon */}
-                    <div className={`w-16 h-16 rounded-2xl ${step.color} flex items-center justify-center flex-shrink-0 relative z-10`}>
-                      <step.icon className="w-7 h-7" />
+                    <div className={`w-20 h-20 rounded-3xl ${step.color} flex items-center justify-center flex-shrink-0 relative z-10 shadow-md`}>
+                      <step.icon className="w-9 h-9" />
                     </div>
                     
                     {/* Content */}
-                    <div className="flex-1 bg-card rounded-2xl p-6 shadow-card border border-border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                          Step {index + 1}
+                    <div className="flex-1 bg-card rounded-3xl p-8 shadow-card border-2 border-border hover:border-primary/30 transition-all">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-base font-bold text-primary bg-primary/10 px-4 py-1.5 rounded-full">
+                          चरण | Step {index + 1}
                         </span>
                         {index < mlSteps.length - 1 && (
-                          <ArrowRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                          <ArrowRight className="w-5 h-5 text-primary hidden sm:block" />
                         )}
                       </div>
-                      <h3 className="font-heading text-lg font-semibold text-foreground mb-2">
+                      <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-3">
                         {step.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                         {step.description}
                       </p>
                     </div>

@@ -4,6 +4,13 @@ import logging
 import re
 from config import settings
 
+try:
+    from groq import Groq
+    GROQ_AVAILABLE = True
+except ImportError:
+    GROQ_AVAILABLE = False
+    logging.warning("groq not installed. Groq features disabled.")
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,6 +54,21 @@ class ResponseGenerator:
     
     def __init__(self):
         """Initialize the response generator"""
+        self.groq_client = None
+        self.use_groq = False
+        
+        # Initialize Groq if enabled and available
+        if settings.USE_GROQ and GROQ_AVAILABLE and settings.GROQ_API_KEY:
+            try:
+                self.groq_client = Groq(api_key=settings.GROQ_API_KEY)
+                self.use_groq = True
+                logger.info(f"✨ Groq API initialized: {settings.GROQ_MODEL_NAME}")
+            except Exception as e:
+                logger.error(f"Failed to initialize Groq: {e}")
+                self.use_groq = False
+        else:
+            logger.info("Response generator initialized (Groq disabled)")
+        
         logger.info("Response generator initialized")
     
     def generate_response(
@@ -54,7 +76,9 @@ class ResponseGenerator:
         intent: str,
         confidence: float,
         retrieved_docs: List[Dict] = None,
-        query: str = ""
+        query: str = "",
+        detected_language: str = "en",
+        business_profile: Dict = None
     ) -> Tuple[str, List[str]]:
         """
         Generate a response based on intent and retrieved knowledge
@@ -64,6 +88,8 @@ class ResponseGenerator:
             confidence: Intent confidence score
             retrieved_docs: Retrieved documents from RAG
             query: Original user query
+            detected_language: User's detected language code
+            business_profile: User's business context (type, size, location)
             
         Returns:
             Tuple of (response_text, sources)
@@ -82,7 +108,14 @@ class ResponseGenerator:
         
         # Generate RAG-augmented response
         if retrieved_docs and len(retrieved_docs) > 0:
-            response = self._generate_rag_response(intent, retrieved_docs, query)
+            # Use Groq if available, otherwise use template-based approach
+            if self.use_groq:
+                response = self._generate_groq_response(
+                    intent, retrieved_docs, query, detected_language, business_profile
+                )
+            else:
+                response = self._generate_rag_response(intent, retrieved_docs, query)
+            
             sources = [doc.get('metadata', {}).get('source', 'Knowledge Base') 
                       for doc in retrieved_docs]
         else:
@@ -90,6 +123,133 @@ class ResponseGenerator:
             response = self._get_template_response(intent)
         
         return response, sources
+    
+    def _generate_groq_response(
+        self,
+        intent: str,
+        retrieved_docs: List[Dict],
+        query: str,
+        detected_language: str = "en",
+        business_profile: Dict = None
+    ) -> str:
+        """
+        Generate response using Groq API with RAG context
+        
+        Args:
+            intent: Classified intent
+            retrieved_docs: Retrieved documents
+            query: User query
+            detected_language: Detected language code
+            business_profile: Business context for personalization
+            
+        Returns:
+            Generated response from Groq
+        """
+        try:
+            # Combine retrieved documents as context
+            context_parts = []
+            for i, doc in enumerate(retrieved_docs[:5], 1):
+                text = doc.get('text', '').strip()
+                if text:
+                    source = doc.get('metadata', {}).get('source', 'Knowledge Base')
+                    context_parts.append(f"[Source {i}: {source}]\n{text}")
+            
+            if not context_parts:
+                logger.warning("No context for Groq, falling back to template")
+                return self._get_template_response(intent)
+            
+            context = "\n\n---\n\n".join(context_parts)
+            
+            # Language names mapping
+            language_names = {
+                "en": "English",
+                "hi": "Hindi (हिंदी)",
+                "bn": "Bengali (বাংলা)",
+                "te": "Telugu (తెలుగు)",
+                "mr": "Marathi (मराठी)",
+                "ta": "Tamil (தமிழ்)",
+                "gu": "Gujarati (ગુજરાતી)",
+                "kn": "Kannada (ಕನ್ನಡ)",
+                "ml": "Malayalam (മലയാളം)"
+            }
+            
+            target_language = language_names.get(detected_language, "English")
+            
+            # Build business context string
+            business_context = ""
+            if business_profile:
+                business_context = f"\n\nBusiness Context:\n"
+                if business_profile.get('type'):
+                    business_context += f"- Business Type: {business_profile['type']}\n"
+                if business_profile.get('size'):
+                    business_context += f"- Business Size: {business_profile['size']}\n"
+                if business_profile.get('location'):
+                    business_context += f"- Location: {business_profile['location']}\n"
+                if business_profile.get('stage'):
+                    business_context += f"- Stage: {business_profile['stage']}\n"
+            
+            # Create enhanced prompt for Groq with language support
+            prompt = f"""You are an AI assistant helping MSME (Micro, Small, and Medium Enterprises) business owners in India.
+
+User Question: {query}
+
+Intent: {intent}{business_context}
+
+Relevant Information from Knowledge Base:
+{context}
+
+CRITICAL INSTRUCTIONS:
+- The user's preferred language is: {target_language}
+- Provide your ENTIRE response in {target_language}
+- Use natural, conversational language appropriate for business owners
+- Keep technical terms in English if commonly used (e.g., GST, MUDRA, Udyam)
+
+RESPONSE REQUIREMENTS:
+1. Answer the question COMPREHENSIVELY using ALL the information provided above
+2. If the knowledge base contains step-by-step processes, LIST ALL STEPS in detail with proper numbering
+3. Include ALL specific numbers, amounts, procedures, requirements, and documents mentioned
+4. Use clear formatting: bullet points, numbered lists, bold headings
+5. DO NOT say "the detailed process is not specified" if steps are provided in the context
+6. If processes span multiple sources, COMBINE them into one complete answer
+7. Use emojis sparingly (1-2 relevant ones)
+8. Keep the response comprehensive but under 1000 words
+9. If business context is provided, tailor recommendations specifically
+10. End with a helpful follow-up question
+
+IMPORTANT: Extract and present ALL relevant details from the knowledge base. Don't summarize or skip steps.
+
+Provide a detailed, comprehensive response in {target_language}:"""
+            
+            logger.info(f"🤖 Calling Groq API for query in {target_language}: {query[:50]}...")
+            
+            # Generate response using Groq API
+            chat_completion = self.groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant for MSME business owners in India. Provide accurate information based on the knowledge base provided."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                model=settings.GROQ_MODEL_NAME,
+                temperature=settings.GROQ_TEMPERATURE,
+                max_tokens=settings.GROQ_MAX_TOKENS,
+            )
+            
+            if chat_completion and chat_completion.choices[0].message.content:
+                response_text = chat_completion.choices[0].message.content.strip()
+                logger.info(f"✅ Groq response generated in {target_language} ({len(response_text)} chars)")
+                return response_text
+            else:
+                logger.warning("Groq returned empty response, using fallback")
+                return self._generate_rag_response(intent, retrieved_docs, query)
+                
+        except Exception as e:
+            logger.error(f"Groq API error: {e}, falling back to template-based response")
+            return self._generate_rag_response(intent, retrieved_docs, query)
     
     def _generate_rag_response(
         self,
@@ -116,15 +276,16 @@ class ResponseGenerator:
         
         # Combine retrieved information
         context_parts = []
-        for i, doc in enumerate(relevant_docs[:5], 1):  # Top 5 documents
+        for i, doc in enumerate(relevant_docs[:8], 1):  # Use top 8 documents (increased from 5)
             text = doc.get('text', '').strip()
             if text:
                 # Clean up text formatting
                 text = text.replace('\n\n\n', '\n\n')  # Remove excessive line breaks
                 
-                # Only truncate if EXTREMELY long (over 5000 chars)
-                if len(text) > 5000:
-                    text = self._smart_truncate(text, 5000)
+                # DON'T truncate - preserve all context for accuracy
+                # Only remove if absolutely massive (>8000 chars)
+                if len(text) > 8000:
+                    text = self._smart_truncate(text, 8000)
                 
                 # Apply formatting
                 text = self._format_response_text(text)
@@ -138,27 +299,43 @@ class ResponseGenerator:
             logger.warning(f"No context found in retrieved docs for intent: {intent}")
             return self._get_template_response(intent)
         
-        # Create response with context - combine with clear separation
-        response = context_parts[0]  # Start with most relevant doc
-        logger.info(f"🔤 Starting response with part 1 ({len(context_parts[0])} chars)")
+        # Create response with context - combine ALL parts for comprehensive answer
+        response_parts = []
         
-        # Add additional docs if available and not too redundant
-        if len(context_parts) > 1:
-            for idx, additional in enumerate(context_parts[1:], 2):
-                # Only check for true duplicates - same exact starting content
-                # Don't block documents that just share common words
-                if not self._is_duplicate_content(response, additional):
-                    # Use cleaner separator
-                    response += "\n\n" + additional
-                    logger.info(f"✅ Added part {idx} ({len(additional)} chars)")
-                else:
-                    logger.info(f"❌ Skipped part {idx} (duplicate content)")
+        # Add greeting based on query
+        intro = self._get_intro_for_query(query, intent)
+        if intro:
+            response_parts.append(intro)
+        
+        # Add all unique context parts (avoid only exact duplicates)
+        seen_starts = set()
+        for idx, part in enumerate(context_parts, 1):
+            # Only skip if first 200 chars are identical (true duplicate)
+            part_signature = part[:200].strip().lower()
+            if part_signature not in seen_starts:
+                response_parts.append(part)
+                seen_starts.add(part_signature)
+                logger.info(f"✅ Added unique part {idx} ({len(part)} chars)")
+            else:
+                logger.info(f"⏩ Skipped exact duplicate {idx}")
+        
+        response = "\n\n".join(response_parts)
         
         # Add helpful closing only if response isn't too long
-        if len(response) < 6000:
+        if len(response) < 8000:
             response += "\n\n💡 **Would you like more details about any specific aspect?**"
         
+        logger.info(f"📝 Final response: {len(response)} characters from {len(response_parts)} parts")
         return response
+    
+    def _get_intro_for_query(self, query: str, intent: str) -> str:
+        """Generate a brief intro based on the query"""
+        query_lower = query.lower()
+        
+        if any(word in query_lower for word in ['how', 'process', 'steps', 'procedure']):
+            return "👋 Hello there! 👋 I can definitely help you with that information."
+        
+        return "👋 Hello there! 👋 I can definitely help."
     
     def _is_duplicate_content(self, existing: str, new: str) -> bool:
         """Check if new content is substantially similar to existing"""
