@@ -104,7 +104,7 @@ npm install
 npm run dev
 ```
 
-Frontend runs at: **http://localhost:5173**
+Frontend runs at: **http://localhost:8080**
 
 ### Backend Setup
 
@@ -154,8 +154,6 @@ API Docs: **http://localhost:8000/docs**
 
 **Free Tier**: 14,400 requests/day | Lightning fast ⚡
 
-See [GROQ_SETUP.md](./GROQ_SETUP.md) for detailed setup.
-
 ### Running Both Together
 
 **Terminal 1** (Backend):
@@ -188,8 +186,7 @@ msme-mitra/
 │   │   └── document_processor.py # Document chunking
 │   ├── scripts/                  # Setup scripts
 │   │   ├── download_models.py    # Download ML models
-│   │   ├── setup_knowledge_base.py# Index documents
-│   │   └── expand_files_comprehensive.py# Knowledge expansion
+│   │   └── setup_knowledge_base.py# Index documents
 │   ├── knowledge_base/           # 13 comprehensive guides (546 chunks)
 │   │   ├── mudra_loans.txt       # 12.7 KB
 │   │   ├── gst_registration.txt  # 22.2 KB
