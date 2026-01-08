@@ -225,8 +225,6 @@ msme-mitra/
 │   │   └── utils.ts              # Helper functions
 │   └── App.tsx                   # Main app
 ├── public/                       # Static assets
-├── GROQ_SETUP.md                 # Groq API setup guide
-├── FEATURE_GUIDE.md              # Feature documentation
 ├── README.md                     # This file
 └── package.json                  # Node dependencies
 ```
@@ -350,7 +348,7 @@ Edit files in `backend/knowledge_base/` and re-index.
 
 ## 📊 Analytics
 
-Access analytics at: http://localhost:5173/analytics
+Access analytics at: http://localhost:8080/analytics
 
 **Metrics tracked:**
 - Total conversations
@@ -369,12 +367,6 @@ Access analytics at: http://localhost:5173/analytics
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-## 📝 Documentation
-
-- [FEATURE_GUIDE.md](./FEATURE_GUIDE.md) - Comprehensive feature documentation
-- [GROQ_SETUP.md](./GROQ_SETUP.md) - Groq API setup guide
-- [SETUP_GUIDE.md](./SETUP_GUIDE.md) - Detailed setup instructions
-- [PROJECT_REPORT.md](./PROJECT_REPORT.md) - Technical report
 
 ## 🐛 Troubleshooting
 
@@ -416,9 +408,6 @@ npm run build
 - Use `python main.py` as start command
 - Ensure Python 3.9+ runtime
 
-## 📄 License
-
-This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
