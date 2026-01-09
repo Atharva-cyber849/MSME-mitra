@@ -308,7 +308,7 @@ python scripts/setup_knowledge_base.py
 
 ### Test the Chatbot
 
-Visit http://localhost:5173/chat and try:
+Visit http://localhost:8080/chat and try:
 
 - "How do I register for GST?"
 - "What is MUDRA loan eligibility?"
